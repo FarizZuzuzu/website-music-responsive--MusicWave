@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="artist-profile-wrap">
+  <div class="artist-profile-card">
+    <div class="artist-profile-cover">
+      {% if artist.avatar %}
+        <img src="{{ url_for('static', filename='uploads/avatars/' + artist.avatar) }}" alt="{{ artist.stage_name }}">
+      {% else %}
+        <img src="{{ url_for('static', filename='assets/img/default_cover.jpg') }}" alt="{{ artist.stage_name }}">
+      {% endif %}
+    </div>
+
+    <div class="artist-profile-info">
+      <div class="artist-profile-header">
+        <div>
+          <p class="artist-eyebrow">Artis Terverifikasi</p>
+          <h1>{{ artist.stage_name }}</h1>
+        </div>
+        {% if artist.is_verified %}
+          <span class="verified-badge large"><i class="fa-solid fa-check"></i></span>
+        {% endif %}
+      </div>
+
+      <div class="artist-meta">
+        <span><i class="fa-solid fa-user"></i> {{ artist.full_name or artist.username }}</span>
+        <span><i class="fa-solid fa-headphones"></i> {{ artist.song_count }} lagu</span>
+        <span><i class="fa-solid fa-heart"></i> {{ artist.follower_count }} pengikut</span>
+      </div>
+
+      <p class="artist-bio">
+        {{ artist.bio or 'Artis ini belum menambahkan bio.' }}
+      </p>
+
+      <div class="artist-actions">
+        <form action="{{ url_for('follow_artist', artist_id=artist.id) }}" method="post">
+          <button type="submit" class="artist-follow-btn {% if is_following %}following{% endif %}">
+            {% if is_following %}
+              <i class="fa-solid fa-user-check"></i> Mengikuti
+            {% else %}
+              <i class="fa-solid fa-user-plus"></i> Ikuti
+            {% endif %}
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="explore-section artist-music-section">
+  <div class="explore-header">
+    <h2><i class="fa-solid fa-music"></i> Lagu dari {{ artist.stage_name }}</h2>
+    <p>Daftar lagu yang telah disetujui oleh admin</p>
+  </div>
+
+  {% if songs %}
+  <div class="music-list">
+    {% for song in songs %}
+    <div class="music-item" data-id="{{ song.id }}" data-audio="{{ url_for('static', filename='uploads/songs/' + song.song_file) }}">
+      <img src="{{ url_for('static', filename='uploads/covers/' + (song.cover_file or 'default_cover.jpg')) }}" alt="{{ song.title }}">
+      <div class="info">
+        <h4>{{ song.title }}</h4>
+        <p>{{ song.artist }}</p>
+        {% if song.plays %}
+          <small>{{ song.plays }} kali diputar</small>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+    <p>Belum ada lagu yang diunggah artis ini.</p>
+  {% endif %}
+</section>
+{% endblock %}

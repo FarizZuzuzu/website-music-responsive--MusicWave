@@ -1,0 +1,60 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}MusicWave - Manage Podcasts{% endblock %}
+
+{% block content %}
+    <section class="admin-song">
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <div style="margin: 15px auto; max-width: 800px; background: #e9ffe9; border: 1px solid #b2f2b2; padding: 10px; border-radius: 8px;">
+            {% for msg in messages %}
+              <p>{{ msg }}</p>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Judul</th>
+            <th>Host</th>
+            <th>Kategori</th>
+            <th>Tanggal Upload</th>
+            <th>Status</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in podcasts %}
+          <tr>
+            <td>{{ p.id }}</td>
+            <td>{{ p.title }}</td>
+            <td>{{ p.host }}</td>
+            <td>{{ p.category }}</td>
+            <td>{{ p.uploaded_at.split('T')[0] }}</td>
+            <td><span class="status {{ p.status }}">{{ p.status }}</span></td>
+            <td>
+              {% if p.status == 'pending' %}
+                <a href="{{ url_for('approve_podcast', podcast_id=p.id) }}" class="btn approve"><i class="fa-solid fa-check"></i> Approve</a>
+              {% elif p.status == 'approved' %}
+                <span style="color:#2ecc71;font-weight:bold;">✔ Disetujui</span>
+              {% else %}
+                <span style="color:#e74c3c;font-weight:bold;">✖ Ditolak</span>
+              {% endif %}
+
+              <form action="{{ url_for('admin_delete_podcast', podcast_id=p.id) }}" method="post" style="display:inline;" onsubmit="return confirm('Yakin ingin menghapus podcast ini?');">
+                <button type="submit" class="btn reject" style="margin-top:8px;"><i class="fa-solid fa-trash"></i> Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="7" style="text-align:center; padding:20px;">Belum ada podcast yang diupload</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+{% endblock %}

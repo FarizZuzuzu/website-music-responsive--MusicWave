@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="upload-container edit-song-container">
+  <h2><i class="fa-solid fa-pen-to-square"></i> Edit Lagu</h2>
+
+  <form action="{{ url_for('edit_song', song_id=song.id) }}" method="POST" enctype="multipart/form-data" data-no-ajax="true">
+    <label for="title">Judul Lagu</label>
+    <input id="title" type="text" name="title" value="{{ song.title }}" required>
+
+    <label for="artist">Artis</label>
+    <input id="artist" type="text" name="artist" value="{{ song.artist }}" required>
+
+    <label for="description">Deskripsi</label>
+    <textarea id="description" name="description" rows="3">{{ song.description or '' }}</textarea>
+
+    <label for="lyrics">Lirik <small>(gunakan timestamp seperti [00:12.50] untuk sinkronisasi)</small></label>
+    <textarea id="lyrics" name="lyrics" rows="8">{{ song.lyrics or '' }}</textarea>
+
+    <label for="cover_file">Ganti Cover (opsional)</label>
+    <input id="cover_file" type="file" name="cover_file" accept="image/*">
+
+    <button type="submit" class="btn-submit"><i class="fa-solid fa-floppy-disk"></i> Simpan Perubahan</button>
+  </form>
+
+  <a href="{{ url_for('profile') }}" class="back-btn"><i class="fa-solid fa-xmark"></i> Batal</a>
+  <p class="edit-song-notice"><i class="fa-solid fa-clock"></i> Setelah diedit, lagu akan menunggu persetujuan admin kembali.</p>
+</div>
+{% endblock %}

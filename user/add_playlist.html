@@ -1,0 +1,64 @@
+
+
+  {% extends "base.html" %}
+  {% block content %}
+
+  
+    <form class="playlist-form" method="POST" enctype="multipart/form-data">
+      <div class="cover-preview">
+        <div class="cover-bleed">
+          <img id="previewImg" src="{{ url_for('static', filename='assets/img/default_cover.jpg') }}" alt="cover">
+          <div class="gradient-overlay"></div>
+          <div class="cover-actions">
+            <label class="upload-cover">
+              <input type="file" name="cover_file" id="coverInput" hidden>
+              <i class="fa-solid fa-image"></i> Upload Cover
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="playlist-fields">
+        <label>Nama Playlist</label>
+        <input type="text" name="name" placeholder="Contoh: Chill Vibes" required>
+
+        <label>Deskripsi (opsional)</label>
+        <textarea name="description" placeholder="Deskripsi singkat..."></textarea>
+
+        <button type="submit" class="create-btn">
+          <i class="fa-solid fa-circle-plus"></i> Buat Playlist
+        </button>
+      </div>
+    </form>
+
+
+  <script>
+    const coverInput = document.getElementById('coverInput');
+    const previewImg = document.getElementById('previewImg');
+    if (coverInput) {
+      coverInput.addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+          previewImg.src = URL.createObjectURL(file);
+        }
+      });
+    }
+  </script>
+
+  <style>
+    /* minimal styling khusus halaman ini agar langsung rapi */
+    .create-playlist-container { padding: 30px; display:flex; justify-content:center; }
+    .playlist-form { max-width: 1100px; width:100%; display:flex; gap:24px; background:#fff; padding:20px; border-radius:14px; box-shadow:0 8px 30px rgba(0,0,0,0.06); }
+    .cover-bleed { position:relative; width:420px; height:240px; overflow:hidden; border-radius:12px; }
+    .cover-bleed img { width:100%; height:100%; object-fit:cover; display:block; }
+    .gradient-overlay { position:absolute; inset:0; background: linear-gradient(180deg, rgba(0,0,0,0.0) 0%, rgba(0,0,0,0.55) 80%); pointer-events:none; }
+    .cover-actions { position:absolute; left:16px; bottom:12px; }
+    .upload-cover { background:#7c4dff; color:#fff; padding:8px 12px; border-radius:8px; cursor:pointer; display:inline-flex; gap:8px; align-items:center; }
+    .playlist-fields { flex:1; display:flex; flex-direction:column; }
+    .playlist-fields input, .playlist-fields textarea { padding:12px; border-radius:8px; border:1px solid #ddd; margin-bottom:12px; width:100%; }
+    .create-btn { background:#7c4dff; color:#fff; border:none; padding:12px 18px; border-radius:10px; font-weight:600; cursor:pointer; }
+    @media (max-width:900px){ .playlist-form{flex-direction:column} .cover-bleed{width:100%; height:200px} }
+  </style>
+
+  {% endblock %}
+  

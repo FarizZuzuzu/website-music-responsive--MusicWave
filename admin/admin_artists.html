@@ -1,0 +1,70 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}MusicWave - Verify Artists{% endblock %}
+
+{% block content %}
+    <section class="admin-song">
+        <h2>
+            <i class="fa-solid fa-users-crown"></i> Verifikasi Artis
+        </h2>
+
+        <div class="admin-table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Nama Lengkap</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>Lagu</th>
+                        <th>Followers</th>
+                        <th>Bergabung</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for artist in artists %}
+                    <tr>
+                        <td>{{ artist.id }}</td>
+                        <td>{{ artist.username }}</td>
+                        <td>{{ artist.full_name or '-' }}</td>
+                        <td>{{ artist.email }}</td>
+                        <td>
+                            {% if artist.is_verified == 1 %}
+                                <span class="status verified">✔ Terverifikasi</span>
+                            {% else %}
+                                <span class="status pending">⏳ Pending</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ artist.song_count }}</td>
+                        <td>{{ artist.follower_count }}</td>
+                        <td>{{ artist.user_joined.split('T')[0] if artist.user_joined else '-' }}</td>
+                        <td class="action-cell">
+                            {% if artist.is_verified == 0 %}
+                                <a href="{{ url_for('verify_artist', artist_id=artist.id) }}" class="btn approve" title="Verifikasi Artis">
+                                    <i class="fa-solid fa-badge-check"></i> Verify
+                                </a>
+                            {% else %}
+                                <span class="status verified small">Terverifikasi</span>
+                            {% endif %}
+                            <a href="{{ url_for('remove_artist', artist_id=artist.id) }}" 
+                               class="btn reject" 
+                               onclick="return confirm('Yakin ingin menghapus artis ini?');"
+                               title="Hapus Artis">
+                                <i class="fa-solid fa-trash"></i> Remove
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="9" class="empty-state-cell">
+                            Belum ada artis yang mendaftar
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+{% endblock %}

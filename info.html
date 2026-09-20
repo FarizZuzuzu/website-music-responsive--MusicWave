@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="info-page">
+  <div class="info-page-content">
+    <div class="info-page-accent"></div>
+    <div class="info-page-header">
+      <span class="info-page-kicker">MusicWave</span>
+      <span class="info-page-icon"><i class="fa-solid fa-music"></i></span>
+    </div>
+    <h1>{{ heading }}</h1>
+    <div class="info-page-copy">
+      {% for paragraph in content %}
+        <p>{{ paragraph }}</p>
+      {% endfor %}
+    </div>
+    <div class="info-page-footer">
+      <span><i class="fa-solid fa-headphones"></i> Listen freely</span>
+      <span><i class="fa-solid fa-wave-square"></i> Made for music lovers</span>
+    </div>
+  </div>
+</section>
+{% endblock %}

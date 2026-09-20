@@ -1,0 +1,74 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}MusicWave - Manage Songs{% endblock %}
+
+{% block content %}
+    <section class="admin-song">
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            <div style="margin: 15px auto; max-width: 800px; background: #e9ffe9; border: 1px solid #b2f2b2; padding: 10px; border-radius: 8px;">
+                {% for msg in messages %}
+                <p>{{ msg }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+        {% endwith %}
+
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Judul</th>
+                <th>Artis</th>
+                <th>Genre</th>
+                <th>Tanggal Upload</th>
+                <th>Status</th>
+                <th>Aksi</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            {% for song in songs %}
+            <tr>
+                <td>{{ song.id }}</td>
+                <td>{{ song.title }}</td>
+                <td>{{ song.artist }}</td>
+                <td>{{ song.genre }}</td>
+                <td>{{ song.uploaded_at.split('T')[0] }}</td>
+                <td><span class="status {{ song.status }}">{{ song.status }}</span></td>
+                <td>
+                {% if song.status == 'pending' %}
+                    <div class="admin-song-actions">
+                        <a href="{{ url_for('approve_song', song_id=song.id) }}" class="btn approve"><i class="fa-solid fa-check"></i> Approve</a>
+                        <a href="{{ url_for('reject_song', song_id=song.id) }}" class="btn reject"><i class="fa-solid fa-xmark"></i> Reject</a>
+                    </div>
+                {% elif song.status == 'delete_requested' %}
+                    <div class="admin-song-actions">
+                        <form action="{{ url_for('admin_delete_song', song_id=song.id) }}" method="POST" onsubmit="return confirm('Setujui penghapusan lagu ini secara permanen?');">
+                            <button type="submit" class="btn reject"><i class="fa-solid fa-trash"></i> Setujui Hapus</button>
+                        </form>
+                    </div>
+                {% elif song.status == 'approved' %}
+                    <div class="admin-song-actions">
+                        <span style="color:#2ecc71;font-weight:bold;">✔ Disetujui</span>
+                        <form action="{{ url_for('admin_delete_song', song_id=song.id) }}" method="POST" onsubmit="return confirm('Hapus lagu approved ini secara permanen?');">
+                            <button type="submit" class="btn reject"><i class="fa-solid fa-trash"></i> Hapus</button>
+                        </form>
+                    </div>
+                {% elif song.status == 'rejected' %}
+                    <span style="color:#e74c3c;font-weight:bold;">✖ Ditolak</span>
+                {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7" style="text-align:center; padding:20px;">Belum ada lagu yang diupload</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        </section>
+{% endblock %}
+

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="song-page" id="songPage" data-song-id="{{ song.id }}"
+         data-audio="{{ url_for('static', filename='uploads/songs/' + song.song_file) if song.song_file else '' }}"
+         data-cover="{{ url_for('static', filename='uploads/covers/' + (song.cover_file or 'default_cover.jpg')) }}"
+         data-title="{{ song.title }}" data-artist="{{ song.artist }}">
+  <div class="song-page-hero">
+    <button class="song-page-close" id="songPageClose" type="button" aria-label="Tutup detail lagu" title="Tutup detail lagu">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+    <div class="song-page-art-wrap">
+      <img class="song-page-art" src="{{ url_for('static', filename='uploads/covers/' + (song.cover_file or 'default_cover.jpg')) }}" alt="{{ song.title }}">
+    </div>
+    <div class="song-page-heading">
+      <p class="song-page-kicker">NOW PLAYING</p>
+      <h1>{{ song.title }}</h1>
+      <p class="song-page-artist">{{ song.artist }}</p>
+      <p class="song-page-meta">{{ song.genres or 'Single' }}{% if song.uploader %} · Diunggah oleh {{ song.uploader }}{% endif %}</p>
+      <div class="song-page-actions">
+        <button class="song-page-play" id="songPagePlay" type="button"><i class="fa-solid fa-play"></i><span>Putar lagu</span></button>
+        <button class="song-page-icon like-btn" id="songPageLike" type="button" title="Sukai lagu"><i class="fa-regular fa-heart"></i></button>
+        <button class="song-page-icon add-playlist-btn" id="songPageAdd" type="button" title="Tambah ke playlist"><i class="fa-solid fa-plus"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="song-page-grid">
+    <section class="song-page-panel song-lyrics-panel">
+      <div class="song-page-panel-heading"><span>01</span><h2>Lirik</h2></div>
+      <div class="song-page-lyrics">
+        {% if song.lyrics %}
+          {% for line in song.lyrics.split('\n') %}<p>{{ line }}</p>{% endfor %}
+        {% else %}<p class="song-page-muted">Lirik belum tersedia untuk lagu ini.</p>{% endif %}
+      </div>
+    </section>
+    <section class="song-page-panel song-info-panel">
+      <div class="song-page-panel-heading"><span>02</span><h2>Informasi Lagu</h2></div>
+      <dl class="song-page-info">
+        <div><dt>Genre</dt><dd>{{ song.genres or 'Tidak ada genre' }}</dd></div>
+        <div><dt>Diputar</dt><dd>{{ song.plays or 0 }} kali</dd></div>
+        <div><dt>Artis</dt><dd>{{ song.artist }}</dd></div>
+        <div><dt>Tanggal upload</dt><dd>{{ song.uploaded_at.split('T')[0] if song.uploaded_at else '-' }}</dd></div>
+      </dl>
+    </section>
+  </div>
+</section>
+{% endblock %}

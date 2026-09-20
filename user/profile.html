@@ -1,0 +1,187 @@
+
+  {% extends "base.html" %}
+  {% block content %}
+
+  
+
+    <section class="user-profile">
+      <!-- Profile Header -->
+      <div class="user-profile__header">
+        <div class="avatar-container">
+          {% if current_user and current_user.avatar %}
+            <img src="{{ current_user.avatar if current_user.avatar.startswith('/static/') else url_for('static', filename='uploads/avatars/' + current_user.avatar) }}" alt="User Profile" class="user-profile__avatar">
+          {% else %}
+            <div class="user-profile__avatar default-avatar">
+              <i class="fa-solid fa-user"></i>
+            </div>
+          {% endif %}
+        </div>
+        <div class="user-profile__info">
+          <h2 class="user-profile__name">{{ current_user.full_name or current_user.username if current_user else 'User' }}</h2>
+          <p class="user-profile__username">@{{ current_user.username if current_user else 'username' }}</p>
+         
+          
+          <div class="user-profile__stats">
+            <div class="user-profile__stat">
+              <span>{{ playlist_count }}</span>
+              <p>Playlist</p>
+            </div>
+            <div class="user-profile__stat">
+              <span>{{ songs_count }}</span>
+              <p>Lagu Diupload</p>
+            </div>
+            <div class="user-profile__stat">
+              <span>{{ podcasts_count }}</span>
+              <p>Podcast Diupload</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+       {% if current_user and current_user.bio %}
+            <p class="user-profile__bio">{{ current_user.bio }}</p>
+          {% endif %}
+
+      <!-- Edit Profile Button -->
+      <div class="edit-profile-section">
+        <button class="edit-profile-btn" id="editProfileBtn">
+          <i class="fa-solid fa-pen-to-square"></i> Edit Profile
+        </button>
+      </div>
+
+      <!-- Edit Profile Modal -->
+      <div class="modal" id="editProfileModal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3>Edit Profile</h3>
+            <button class="modal-close" id="modalClose">&times;</button>
+          </div>
+          <form id="editProfileForm" action="{{ url_for('edit_profile') }}" method="POST" enctype="multipart/form-data" class="edit-profile-form" data-no-ajax="true">
+            <div class="form-group">
+              <label for="full_name">Nama Lengkap</label>
+              <input type="text" id="full_name" name="full_name" value="{{ current_user.full_name if current_user else '' }}" required minlength="2" placeholder="Masukkan nama lengkap">
+            </div>
+            
+            <div class="form-group">
+              <label for="username">Username</label>
+              <input type="text" id="username" name="username" value="{{ current_user.username if current_user else '' }}" required minlength="3" placeholder="Masukkan username baru">
+              <small class="form-help">Username minimal 3 karakter dan tidak boleh sama dengan user lain</small>
+            </div>
+
+            <div class="form-group">
+              <label for="bio">Bio</label>
+              <textarea id="bio" name="bio" maxlength="300" rows="4" placeholder="Ceritakan sedikit tentang kamu">{{ current_user.bio if current_user else '' }}</textarea>
+              <small>Maksimal 300 karakter</small>
+            </div>
+            
+            <div class="form-group">
+              <label for="avatar">Foto Profile</label>
+              <div class="file-upload">
+                <input type="file" id="avatar" name="avatar" accept="image/*">
+                <input type="hidden" id="removeAvatar" name="remove_avatar" value="0">
+                <label for="avatar" class="file-upload-label">
+                  <i class="fa-solid fa-cloud-arrow-up"></i>
+                  <span>Pilih Foto</span>
+                </label>
+              </div>
+              <button type="button" class="remove-avatar-btn" id="removeAvatarBtn">
+                <i class="fa-solid fa-trash-can"></i> Hapus foto profile
+              </button>
+              <small>Format: JPG, PNG, GIF. Maksimal 5MB</small>
+            </div>
+            
+            <div class="form-actions">
+              <button type="button" class="btn-cancel" id="cancelEdit">Batal</button>
+              <button type="submit" class="btn-save">Simpan Perubahan</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Playlist Section -->
+      <section class="library-section">
+        <h2>Playlist Anda</h2>
+        {% if playlists %}
+          <div class="library-grid">
+            {% for playlist in playlists %}
+            <a class="library-card" href="{{ url_for('playlist_detail', playlist_id=playlist.id) }}">
+              {% if playlist.cover_file %}
+                <img src="{{ url_for('static', filename='uploads/playlist_covers/' + playlist.cover_file) }}" alt="{{ playlist.name }}">
+              {% else %}
+                <img src="{{ url_for('static', filename='assets/img/default_cover.jpg') }}" alt="{{ playlist.name }}">
+              {% endif %}
+              <div class="card-text">
+                <h4>{{ playlist.name }}</h4>
+                <p>{{ playlist.description or 'Tanpa deskripsi' }}</p>
+              </div>
+            </a>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="empty-state">
+            <i class="fa-solid fa-music"></i>
+            <p>Belum ada playlist</p>
+            <a href="{{ url_for('add_playlist') }}" class="btn-create">Buat Playlist Pertama</a>
+          </div>
+        {% endif %}
+      </section>
+
+      <!-- Uploaded Songs Section -->
+      <section class="library-section profile-uploaded-songs">
+        <h2>Lagu yang Diupload</h2>
+        {% if uploaded_songs %}
+          <div class="library-grid">
+            {% for song in uploaded_songs %}
+            <div class="library-card music-card" data-id="{{ song.id }}" data-audio="{{ url_for('static', filename='uploads/songs/' + song.song_file) if song.song_file else '' }}" data-type="song">
+              <img src="{{ url_for('static', filename='uploads/covers/' + (song.cover_file or 'default_cover.jpg')) }}" alt="{{ song.title }}">
+              <div class="card-text">
+                <h4>{{ song.title }}</h4>
+                <p>{{ song.artist }}</p>
+                <small class="upload-status status-{{ song.status|lower }}">{{ song.status|capitalize }}</small>
+              </div>
+              <div class="profile-song-actions">
+                <div class="profile-song-menu-wrapper">
+                  <button type="button" class="profile-song-menu profile-song-menu-toggle" title="Pilihan lagu" aria-label="Pilihan lagu">
+                    <i class="fa-solid fa-ellipsis-vertical"></i>
+                  </button>
+                  <div class="profile-song-menu-dropdown">
+                    <a href="{{ url_for('edit_song', song_id=song.id) }}" data-no-ajax="true">
+                      <i class="fa-solid fa-pen"></i> Edit lagu
+                    </a>
+                    <form action="{{ url_for('request_song_deletion', song_id=song.id) }}" method="POST" data-no-ajax="true" onsubmit="return confirm('Ajukan penghapusan lagu ini kepada admin? Lagu akan menunggu persetujuan admin.');">
+                      <button type="submit" class="danger-action">
+                        <i class="fa-solid fa-trash"></i> Hapus lagu
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="empty-state">
+            <i class="fa-solid fa-music"></i>
+            <p>Belum ada lagu yang diupload</p>
+          </div>
+        {% endif %}
+      </section>
+
+      <!-- Action Buttons -->
+      <section class="action-buttons">
+        <a href="{{ url_for('upload_song') }}" class="action-btn">
+          <i class="fa-solid fa-upload"></i> Upload Lagu
+        </a>
+        <a href="{{ url_for('upload_podcast') }}" class="action-btn">
+          <i class="fa-solid fa-podcast"></i> Upload Podcast
+        </a>
+        <a href="{{ url_for('add_playlist') }}" class="action-btn">
+          <i class="fa-solid fa-plus"></i> Buat Playlist
+        </a>
+      </section>
+    </section>
+
+    
+
+  {% endblock %}
+

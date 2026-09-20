@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+
+    <section class="genre-section">
+      <h2><i class="fa-solid fa-music"></i> Genre: {{ genre_name }}</h2>
+      <p class="song-count">{{ songs|length }} lagu ditemukan</p>
+
+      {% if songs %}
+      <div class="music-list">
+        {% for song in songs %}
+        <div class="music-item" 
+            data-id="{{ song.id }}" 
+            data-audio="{{ url_for('static', filename='uploads/songs/' + song.song_file) }}">
+          {% if song.cover_file %}
+            <img src="{{ url_for('static', filename='uploads/covers/' + song.cover_file) }}" alt="{{ song.title }}">
+          {% else %}
+            <img src="{{ url_for('static', filename='assets/img/default_cover.jpg') }}" alt="{{ song.title }}">
+          {% endif %}
+          <div class="info">
+            <h4>{{ song.title }}</h4>
+            <p>{{ song.artist }}</p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p style="margin-top:15px;">Belum ada lagu dengan genre ini.</p>
+      {% endif %}
+    </section>
+
+   
+{% endblock %}

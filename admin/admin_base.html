@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}MusicWave Admin{% endblock %}</title>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='assets/img/musicwave-icon.svg') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=song-page-1">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <img src="{{ url_for('static', filename='assets/img/musicwave-logo.svg') }}" alt="MusicWave" class="brand-logo">
+    </div>
+
+    <ul class="menu">
+      <li class="menu-title" style="padding: 15px 20px; font-size: 12px; color: #999; text-transform: uppercase; font-weight: bold; margin-top: 20px;">Admin Panel</li>
+      <li id="menu-admin-songs" class="{% if request.endpoint == 'admin_songs' %}active{% endif %}">
+        <a href="{{ url_for('admin_songs') }}">
+          <i class="fa-solid fa-music"></i><span>Manage Songs</span>
+        </a>
+      </li>
+      <li id="menu-admin-podcasts" class="{% if request.endpoint == 'admin_podcasts' %}active{% endif %}">
+        <a href="{{ url_for('admin_podcasts') }}">
+          <i class="fa-solid fa-microphone"></i><span>Manage Podcasts</span>
+        </a>
+      </li>
+      <li id="menu-admin-artists" class="{% if request.endpoint == 'admin_artists' %}active{% endif %}">
+        <a href="{{ url_for('admin_artists') }}">
+          <i class="fa-solid fa-users"></i><span>Verify Artists</span>
+        </a>
+      </li>
+      <li id="menu-settings" class="{% if active_page == 'settings' %}active{% endif %}">
+        <a href="{{ url_for('settings') }}">
+          <i class="fa-solid fa-gear"></i><span>Settings</span>
+        </a>
+      </li>
+    </ul>
+
+    <div class="upgrade-box">
+      <p>Admin Dashboard</p>
+      <button style="cursor: not-allowed; opacity: 0.6;">Management Center</button>
+    </div>
+  </aside>
+
+  <div class="overlay" id="overlay"></div>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+    <header class="topbar">
+      <button id="toggleBtn"><i class="fa-solid fa-bars"></i></button>
+
+      <div class="search-bar">
+        <form action="{{ url_for('search') }}" method="get">
+          <div class="search-input">
+            <i class="fa-solid fa-search"></i>
+            <input type="text" name="q" placeholder="Search..." value="{{ query if query else '' }}">
+          </div>
+        </form>
+      </div>
+
+      <!-- PROFILE SECTION -->
+      <div class="profile-section">
+        {% if session.user_id %}
+          <button id="profileBtn" class="profile-admin-btn">
+            <i class="fa-solid fa-shield"></i>
+            <span style="margin-left: 8px;">{{ session.username }}</span>
+          </button>
+          <div class="profile-dropdown" id="profileDropdown">
+            <a href="{{ url_for('profile') }}">
+              <i class="fa-solid fa-user"></i> Profile
+            </a>
+            <a href="{{ url_for('logout') }}">
+              <i class="fa-solid fa-right-from-bracket"></i> Log Out
+            </a>
+          </div>
+        {% else %}
+          <div class="auth-buttons">
+            <a href="{{ url_for('login') }}" class="auth-btn-small">Login</a>
+            <a href="{{ url_for('register') }}" class="auth-btn-small primary">Register</a>
+          </div>
+        {% endif %}
+      </div>
+    </header>
+
+    <!-- Flash Messages -->
+    <div class="flash-container" id="flashContainer">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="flash-message flash-{{ category }}" data-timeout="5000">
+              <span class="flash-text">{{ message }}</span>
+              <button class="flash-close" onclick="this.parentElement.remove()">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+    </div>
+
+    <!-- CONTENT BLOCK -->
+    {% block content %}{% endblock %}
+
+  </main>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- 🔹 PLAYLIST SECTION -->
+{% if user_id %}
+<section class="library-section">
+  <h2>Playlist Anda</h2>
+  <div class="library-grid">
+    {% if playlists %}
+      {% for p in playlists %}
+      <a class="library-card" href="{{ url_for('playlist_detail', playlist_id=p.id) }}">
+        <img src="{{ url_for('static', filename='uploads/playlist_covers/' + (p.cover_file or 'default_cover.jpg')) }}" alt="{{ p.name }}">
+        <div class="card-text">
+          <h4>{{ p.name }}</h4>
+          <p>{{ p.description or 'Tanpa deskripsi' }}</p>
+        </div>
+      </a>
+      {% endfor %}
+    {% else %}
+      <p style="color:#777; grid-column: 1 / -1; text-align: center; padding: 20px;">
+        Belum ada playlist. <a href="{{ url_for('add_playlist') }}" style="color: #7b57ff;">Buat playlist pertama Anda</a>
+      </p>
+    {% endif %}
+  </div>
+</section>
+{% endif %}
+
+<!-- 🔹 REKOMENDASI PERSONAL -->
+{% if user_id and personal_recommendations %}
+<section class="music-recommendations">
+  <h2>Untuk Anda</h2>
+  <p style="color: #666; margin-bottom: 15px; font-size: 14px;">Rekomendasi berdasarkan musik yang Anda dengarkan</p>
+  <div class="music-scroll">
+    {% for song in personal_recommendations %}
+    <div class="music-card" 
+         data-id="{{ song.id }}" 
+         data-audio="{{ url_for('static', filename='uploads/songs/' + song.song_file) }}">
+      <img src="{{ url_for('static', filename='uploads/covers/' + (song.cover_file or 'default_cover.jpg')) }}" alt="{{ song.title }}">
+      <div class="music-info">
+        <h4>{{ song.title }}</h4>
+        <p>{{ song.artist }}</p>
+      </div>
+      <div class="music-actions">
+        <button class="play"><i class="fa-solid fa-play"></i></button>
+        <button class="like"><i class="fa-regular fa-heart"></i></button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<!-- 🔹 SERING DIPUTAR -->
+{% if user_id and frequently_played %}
+<section class="music-recommendations">
+  <h2>Sering Diputar</h2>
+  <div class="music-scroll">
+    {% for song in frequently_played %}
+    <div class="music-card" 
+         data-id="{{ song.id }}" 
+         data-audio="{{ url_for('static', filename='uploads/songs/' + song.song_file) }}">
+      <img src="{{ url_for('static', filename='uploads/covers/' + (song.cover_file or 'default_cover.jpg')) }}" alt="{{ song.title }}">
+      <div class="music-info">
+        <h4>{{ song.title }}</h4>
+        <p>{{ song.artist }}</p>
+        <small>{{ song.play_count }}x diputar</small>
+      </div>
+      <div class="music-actions">
+        <button class="play"><i class="fa-solid fa-play"></i></button>
+        <button class="like"><i class="fa-regular fa-heart"></i></button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<!-- 🔹 TRENDING MINGGU INI -->
+<section class="music-recommendations">
+  <h2>Trending Minggu Ini</h2>
+  <div class="music-scroll">
+    {% for song in trending_songs %}
+    <div class="music-card" 
+         data-id="{{ song.id }}" 
+         data-audio="{{ url_for('static', filename='uploads/songs/' + song.song_file) }}">
+      <img src="{{ url_for('static', filename='uploads/covers/' + (song.cover_file or 'default_cover.jpg')) }}" alt="{{ song.title }}">
+      <div class="music-info">
+        <h4>{{ song.title }}</h4>
+        <p>{{ song.artist }}</p>
+        <small>{{ song.plays }}x diputar</small>
+      </div>
+      <div class="music-actions">
+        <button class="play"><i class="fa-solid fa-play"></i></button>
+        <button class="like"><i class="fa-regular fa-heart"></i></button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- 🔹 LAGU TERBARU -->
+<section class="music-recommendations">
+  <h2>Lagu Terbaru</h2>
+  <div class="music-scroll">
+    {% for song in latest_songs %}
+    <div class="music-card" 
+         data-id="{{ song.id }}" 
+         data-audio="{{ url_for('static', filename='uploads/songs/' + song.song_file) }}">
+      <img src="{{ url_for('static', filename='uploads/covers/' + (song.cover_file or 'default_cover.jpg')) }}" alt="{{ song.title }}">
+      <div class="music-info">
+        <h4>{{ song.title }}</h4>
+        <p>{{ song.artist }}</p>
+        <small>Baru ditambahkan</small>
+      </div>
+      <div class="music-actions">
+        <button class="play"><i class="fa-solid fa-play"></i></button>
+        <button class="like"><i class="fa-regular fa-heart"></i></button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- 🔹 PODCAST POPULER -->
+<section class="music-recommendations">
+  <h2>Podcast Populer</h2>
+  <div class="music-scroll">
+    {% for podcast in popular_podcasts %}
+    <div class="music-card" 
+         data-id="{{ podcast.id }}" 
+         data-audio="{{ url_for('static', filename='uploads/podcasts/' + podcast.audio_file) }}"
+         data-type="podcast">
+      {% if podcast.cover_file %}
+        <img src="{{ url_for('static', filename='uploads/podcast_covers/' + podcast.cover_file) }}" alt="{{ podcast.title }}">
+      {% else %}
+        <img src="{{ url_for('static', filename='assets/img/default_cover.jpg') }}" alt="{{ podcast.title }}">
+      {% endif %}
+      <div class="music-info">
+        <h4>{{ podcast.title }}</h4>
+        <p>{{ podcast.host }}</p>
+        <small>{{ podcast.category }}</small>
+      </div>
+      <div class="music-actions">
+        <button class="play"><i class="fa-solid fa-play"></i></button>
+        <button class="like"><i class="fa-regular fa-heart"></i></button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

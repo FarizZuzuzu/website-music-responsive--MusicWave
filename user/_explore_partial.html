@@ -1,0 +1,141 @@
+
+
+<!-- MAIN CONTENT -->
+<header class="topbar">
+  <button id="toggleBtn"><i class="fa-solid fa-bars"></i></button>
+  
+  <div class="search-bar">
+    <form action="{{ url_for('search') }}" method="get">
+      <div class="search-input">
+        <i class="fa-solid fa-search"></i>
+        <input type="text" name="q" placeholder="Search music..." value="{{ query if query else '' }}">
+      </div>
+    </form>
+  </div>
+
+  <div class="profile-section">
+    <button id="profileBtn"><i class="fa-solid fa-user"></i></button>
+    <div class="profile-dropdown" id="profileDropdown">
+      <a href="{{ url_for('profile') }}"><i class="fa-solid fa-user"></i> Check Profile</a>
+      <a href="#"><i class="fa-solid fa-right-from-bracket"></i> Log Out</a>
+    </div>
+  </div>
+</header>
+
+{% if query %}
+<section class="search-results">
+  <h3>Hasil pencarian untuk: <em>{{ query }}</em></h3>
+
+  {% if songs %}
+  <div class="music-list">
+    {% for song in songs %}
+    <div class="music-item" 
+         data-id="{{ song.id }}" 
+         data-audio="{{ url_for('static', filename='uploads/songs/' + song.song_file) }}">
+      <img src="{{ url_for('static', filename='uploads/covers/' + (song.cover_file or 'default_cover.jpg')) }}" alt="{{ song.title }}">
+      <div class="info">
+        <h4>{{ song.title }}</h4>
+        <p>{{ song.artist }}</p>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p style="margin-top:10px;">Lagu tidak ditemukan.</p>
+  {% endif %}
+</section>
+{% endif %}
+
+<!-- ===== EXPLORE SECTION ===== -->
+<section class="explore-section">
+  <div class="explore-header">
+    <h2><i class="fa-solid fa-tags"></i> Explore</h2>
+    <p>Temukan musik, artis, dan genre terbaru yang sedang populer</p>
+  </div>
+
+  <!-- 🔹 Tabs -->
+  <div class="explore-tabs">
+    <button class="tab-button active" data-tab="kategori">Kategori</button>
+    <button class="tab-button" data-tab="terbaru">Terbaru</button>
+    <button class="tab-button" data-tab="trending">Trending</button>
+  </div>
+
+  <div class="explore-wrapper">
+    <!-- === KATEGORI === -->
+    <div class="tab-content active" id="kategori">
+      <div class="category-grid">
+        {% for genre, color in genre_colors.items() %}
+        <a href="{{ url_for('genre_page', genre_name=genre) }}" 
+          class="category-card" 
+          style="--clr: {{ color }};">{{ genre }}</a>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- === TERBARU === -->
+    <div class="tab-content" id="terbaru">
+      <div class="music-list">
+        {% if latest_songs %}
+          {% for song in latest_songs %}
+          <div class="music-item" 
+               data-id="{{ song.id }}" 
+               data-audio="{{ url_for('static', filename='uploads/songs/' + song.song_file) }}">
+            <img src="{{ url_for('static', filename='uploads/covers/' + (song.cover_file or 'default_cover.jpg')) }}" alt="{{ song.title }}">
+            <div class="info">
+              <h4>{{ song.title }}</h4>
+              <p>{{ song.artist }}</p>
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <p>Belum ada lagu terbaru.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- === TRENDING === -->
+    <div class="tab-content" id="trending">
+      <div class="music-list">
+        {% if trending_songs %}
+          {% for song in trending_songs %}
+          <div class="music-item" 
+               data-id="{{ song.id }}" 
+               data-audio="{{ url_for('static', filename='uploads/songs/' + song.song_file) }}">
+            <img src="{{ url_for('static', filename='uploads/covers/' + (song.cover_file or 'default_cover.jpg')) }}" alt="{{ song.title }}">
+            <div class="info">
+              <h4>{{ song.title }}</h4>
+              <p>{{ song.artist }}</p>
+              <small>{{ song.plays }} kali diputar</small>
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <p>Belum ada lagu trending bulan ini.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="footer-content">
+    <div class="footer-left">
+      <h4>MusicWave</h4>
+      <p>Discover, stream, and share your favorite tunes anytime, anywhere.</p>
+    </div>
+    <div class="footer-links">
+      <a href="{{ url_for('info_page', page='about') }}">About</a>
+      <a href="{{ url_for('info_page', page='support') }}">Support</a>
+      <a href="{{ url_for('info_page', page='privacy') }}">Privacy</a>
+      <a href="{{ url_for('info_page', page='terms') }}">Terms</a>
+    </div>
+    <div class="footer-socials">
+      <a href="https://www.facebook.com/fariz.noval.167"><i class="fab fa-facebook-f"></i></a>
+      <a href="https://www.tiktok.com/@farizyaa?_r=1&_t=ZS-917YH9ibqEL"><i class="fa-brands fa-tiktok"></i></a>
+      <a href="https://www.instagram.com/farizxyz?igsh=MXc4dTY5b29mcDk0MQ%3D%3D&utm_source=qr"><i class="fab fa-instagram"></i></a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 MusicWave. All rights reserved.</p>
+  </div>
+</footer>

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register - MusicWave</title>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='assets/img/musicwave-icon.svg') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='auth.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-wrapper">
+      <!-- Hero Section -->
+      <div class="auth-hero">
+        <div class="hero-content">
+          <div class="hero-icon">
+            <i class="fa-solid fa-user-plus"></i>
+          </div>
+          <h1 class="hero-title">Join Us!</h1>
+          <p class="hero-subtitle">
+            Create your account and start your musical journey. Discover new artists, create playlists, and share your favorite tracks.
+          </p>
+        </div>
+      </div>
+
+      <!-- Register Form -->
+      <div class="auth-card">
+        <div class="auth-header">
+          <div class="auth-logo">
+            <img src="{{ url_for('static', filename='assets/img/musicwave-logo.svg') }}" alt="MusicWave" class="auth-logo-image">
+          </div>
+        </div>
+
+        <!-- Flash Messages -->
+        <div class="flash-container" id="flashContainer">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash-message flash-{{ category }}" data-timeout="5000">
+                            <span class="flash-text">{{ message }}</span>
+                            <button class="flash-close" onclick="this.parentElement.remove()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+
+        <form method="POST" action="{{ url_for('register') }}" id="registerForm">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="full_name">
+                <i class="fa-solid fa-user" style="margin-right: 8px;"></i>
+                Full Name
+              </label>
+              <input type="text" class="form-input" id="full_name" name="full_name" 
+                     placeholder="Enter your full name" value="{{ request.form.full_name if request.form }}">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="username">
+                <i class="fa-solid fa-at" style="margin-right: 8px;"></i>
+                Username *
+              </label>
+              <input type="text" class="form-input" id="username" name="username" required 
+                     placeholder="Choose a username" value="{{ request.form.username if request.form }}">
+            </div>
+
+            <div class="form-group full-width">
+              <label class="form-label" for="email">
+                <i class="fa-solid fa-envelope" style="margin-right: 8px;"></i>
+                Email Address *
+              </label>
+              <input type="email" class="form-input" id="email" name="email" required 
+                     placeholder="Enter your email" value="{{ request.form.email if request.form }}">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="password">
+                <i class="fa-solid fa-lock" style="margin-right: 8px;"></i>
+                Password *
+              </label>
+              <input type="password" class="form-input" id="password" name="password" required 
+                     placeholder="Create a password" oninput="checkPasswordStrength()">
+              <div class="password-strength">
+                <div class="strength-bar" id="strengthBar"></div>
+              </div>
+              <div class="password-requirements" id="passwordRequirements">
+                <div class="requirement" id="reqLength">
+                  <i class="fa-solid fa-circle"></i>
+                  At least 6 characters
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="confirm_password">
+                <i class="fa-solid fa-lock" style="margin-right: 8px;"></i>
+                Confirm Password *
+              </label>
+              <input type="password" class="form-input" id="confirm_password" name="confirm_password" required 
+                     placeholder="Confirm your password" oninput="checkPasswordMatch()">
+              <div class="password-requirements">
+                <div class="requirement" id="matchRequirement">
+                  <i class="fa-solid fa-circle"></i>
+                  Passwords must match
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="auth-btn" id="submitBtn">
+            <i class="fa-solid fa-user-plus"></i>
+            Create Account
+          </button>
+        </form>
+
+        <div class="auth-divider">
+          <span>Or sign up with</span>
+        </div>
+
+        <div class="social-login">
+          <button type="button" class="social-btn google">
+            <i class="fa-brands fa-google"></i>
+            Google
+          </button>
+          <button type="button" class="social-btn facebook">
+            <i class="fa-brands fa-facebook-f"></i>
+            Facebook
+          </button>
+        </div>
+
+        <div class="auth-footer">
+          Already have an account? 
+          <a href="{{ url_for('login') }}" class="auth-link">Sign in here</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Password strength checker
+    function checkPasswordStrength() {
+      const password = document.getElementById('password').value;
+      const strengthBar = document.getElementById('strengthBar');
+      const reqLength = document.getElementById('reqLength');
+      
+      let strength = 0;
+      
+      // Length requirement
+      if (password.length >= 6) {
+        strength += 1;
+        reqLength.classList.add('met');
+        reqLength.innerHTML = '<i class="fa-solid fa-check"></i> At least 6 characters';
+      } else {
+        reqLength.classList.remove('met');
+        reqLength.innerHTML = '<i class="fa-solid fa-circle"></i> At least 6 characters';
+      }
+      
+      // Visual feedback
+      strengthBar.className = 'strength-bar';
+      if (password.length === 0) {
+        strengthBar.style.width = '0%';
+      } else if (password.length < 6) {
+        strengthBar.classList.add('strength-weak');
+      } else if (password.length < 8) {
+        strengthBar.classList.add('strength-medium');
+      } else {
+        strengthBar.classList.add('strength-strong');
+      }
+    }
+
+    // Password match checker
+    function checkPasswordMatch() {
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirm_password').value;
+      const matchRequirement = document.getElementById('matchRequirement');
+      
+      if (confirmPassword.length === 0) {
+        matchRequirement.classList.remove('met');
+        matchRequirement.innerHTML = '<i class="fa-solid fa-circle"></i> Passwords must match';
+      } else if (password === confirmPassword) {
+        matchRequirement.classList.add('met');
+        matchRequirement.innerHTML = '<i class="fa-solid fa-check"></i> Passwords match';
+      } else {
+        matchRequirement.classList.remove('met');
+        matchRequirement.innerHTML = '<i class="fa-solid fa-times"></i> Passwords do not match';
+      }
+    }
+
+    // Form validation
+    document.getElementById('registerForm').addEventListener('submit', function(e) {
+      const submitBtn = document.getElementById('submitBtn');
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirm_password').value;
+      
+      // Password validation
+      if (password.length < 6) {
+        e.preventDefault();
+        showMessage('Password must be at least 6 characters long', 'error');
+        return;
+      }
+      
+      if (password !== confirmPassword) {
+        e.preventDefault();
+        showMessage('Passwords do not match', 'error');
+        return;
+      }
+      
+      // Add loading state
+      submitBtn.classList.add('btn-loading');
+      submitBtn.innerHTML = 'Creating Account...';
+      submitBtn.disabled = true;
+    });
+
+    // Auto-remove flash messages after 5 seconds
+    setTimeout(() => {
+      const flashMessages = document.querySelectorAll('.flash-message');
+      flashMessages.forEach(message => {
+        message.style.opacity = '0';
+        message.style.transform = 'translateX(100px)';
+        setTimeout(() => message.remove(), 300);
+      });
+    }, 5000);
+
+    function showMessage(message, type) {
+      const flashContainer = document.querySelector('.flash-messages');
+      const flashMessage = document.createElement('div');
+      flashMessage.className = `flash-message flash-${type}`;
+      flashMessage.innerHTML = `
+        ${message}
+        <button class="flash-close" onclick="this.parentElement.remove()">×</button>
+      `;
+      flashContainer.appendChild(flashMessage);
+      
+      // Auto remove after 5 seconds
+      setTimeout(() => {
+        flashMessage.style.opacity = '0';
+        flashMessage.style.transform = 'translateX(100px)';
+        setTimeout(() => flashMessage.remove(), 300);
+      }, 5000);
+    }
+
+    // Real-time validation for better UX
+    document.getElementById('password').addEventListener('input', checkPasswordStrength);
+    document.getElementById('confirm_password').addEventListener('input', checkPasswordMatch);
+  </script>
+</body>
+</html>

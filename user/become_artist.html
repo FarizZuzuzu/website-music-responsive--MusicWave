@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="upload-container">
+    <h2>🎤 Daftar sebagai Artis</h2>
+    
+    <form method="POST">
+        <div class="form-group">
+            <label for="stage_name">Nama Panggung (Stage Name)</label>
+            <input type="text" id="stage_name" name="stage_name" placeholder="Masukkan nama panggung Anda" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="bio">Bio (Opsional)</label>
+            <textarea id="bio" name="bio" placeholder="Ceritakan tentang diri Anda sebagai artis..." rows="4"></textarea>
+        </div>
+        
+        <div class="form-actions">
+            <a href="{{ url_for('library') }}" class="btn-cancel">Batal</a>
+            <button type="submit" class="btn-save">Daftar sebagai Artis</button>
+        </div>
+    </form>
+</div>
+
+<style>
+.upload-container {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 30px;
+    background: var(--card-bg);
+    border-radius: 15px;
+    box-shadow: var(--card-shadow);
+}
+
+.theme-dark .upload-container {
+    background: var(--card-bg);
+}
+
+.upload-container h2 {
+    text-align: center;
+    color: #7c4dff;
+    margin-bottom: 30px;
+    font-size: 1.8rem;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--input-bg);
+    color: var(--text-primary);
+    font-size: 15px;
+    box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    border-color: #7c4dff;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(124, 77, 255, 0.1);
+}
+
+.form-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-end;
+    margin-top: 30px;
+}
+
+.btn-cancel {
+    padding: 12px 24px;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-cancel:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+.btn-save {
+    padding: 12px 24px;
+    background: #7c4dff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-save:hover {
+    background: #6b3dff;
+    transform: translateY(-2px);
+}
+</style>
+
+{% endblock %}

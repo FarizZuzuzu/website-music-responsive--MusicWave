@@ -1,0 +1,112 @@
+
+
+  {% extends "base.html" %}
+  {% block content %}
+  
+
+    <section class="liked-section">
+      <h2><i class="fa-solid fa-heart-circle-bolt" style="color:#e73c3c;"></i> Liked Songs</h2>
+      <a href="{{ url_for('liked_songs') }}" class="liked-card">
+        <img src="{{ url_for('static', filename='assets/img/playlist 1.jpg') }}" alt="Liked Songs">
+        <div class="liked-info">
+          <h3>Liked Songs</h3>
+          <p>{{ liked_songs_count }} lagu favorit tersimpan</p>
+          <span class="play-liked"><i class="fa-solid fa-play"></i> Putar Semua</span>
+        </div>
+      </a>
+    </section>
+
+    <section class="quick-action">
+      <div class="action-buttons">
+        <a href="/add_playlist" class="action-btn-link">
+          <i class="fa-solid fa-square-plus"></i> Buat Playlist
+        </a>
+        <a href="/add_podcast" class="action-btn-link">
+          <i class="fa-solid fa-podcast"></i> Tambah Podcast
+        </a>
+        <a href="/explore" class="action-btn-link">
+          <i class="fa-solid fa-user-plus"></i> Tambah Artis
+        </a>
+      </div>
+    </section>
+
+
+    <section class="library-section">
+        <h2>Playlist Anda</h2>
+        <div class="library-grid">
+          {% if playlists %}
+            {% for p in playlists %}
+            <a class="library-card" href="{{ url_for('playlist_detail', playlist_id=p.id) }}">
+              <img src="{{ url_for('static', filename='uploads/playlist_covers/' + (p.cover_file or 'default_cover.jpg')) }}" alt="{{ p.name }}">
+              <div class="card-text">
+                <h4>{{ p.name }}</h4>
+                <p>{{ p.description or 'Tanpa deskripsi' }}</p>
+              </div>
+            </a>
+            {% endfor %}
+          {% else %}
+            <p style="color:#777;">Belum ada playlist</p>
+          {% endif %}
+        </div>
+      </section>
+
+    
+    <section class="library-section">
+      <h2>Podcast Anda</h2>
+      <div class="library-grid">
+        {% if podcasts %}
+          {% for p in podcasts %}
+          <div class="library-card">
+            <img src="{{ url_for('static', filename='uploads/podcast_covers/' + (p.cover_file or 'default_cover.jpg')) }}" alt="{{ p.title }}">
+            <div class="card-text">
+              <h4>{{ p.title }}</h4>
+              <p>Host: {{ p.host }}</p>
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <p style="color:#777;">Belum ada podcast di library</p>
+        {% endif %}
+      </div>
+    </section>
+    
+    <section class="library-section">
+    <h2>Artis yang Diikuti</h2>
+    
+    {% if not is_artist %}
+    <div class="quick-action">
+        <div class="action-buttons">
+            <button onclick="window.location.href='/become_artist'">
+                <i class="fa-solid fa-user-plus"></i> Jadi Artis
+            </button>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="artist-scroll">
+        <div class="artist-grid">
+            {% if followed_artists %}
+                {% for artist in followed_artists %}
+                <a class="artist-card" href="{{ url_for('artist_detail', artist_id=artist.id) }}">
+                    {% if artist.avatar %}
+                        <img src="{{ url_for('static', filename='uploads/avatars/' + artist.avatar) }}" alt="{{ artist.stage_name }}">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='assets/img/default_cover.jpg') }}" alt="{{ artist.stage_name }}">
+                    {% endif %}
+                    <h3>{{ artist.stage_name }}</h3>
+                    {% if artist.is_verified %}
+                        <span class="verified-badge"><i class="fa-solid fa-check"></i></span>
+                    {% endif %}
+                </a>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <i class="fa-solid fa-user-plus"></i>
+                    <p>Belum mengikuti artis</p>
+                    <a href="{{ url_for('explore') }}" class="btn-create">Jelajahi Artis</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+  {% endblock %}

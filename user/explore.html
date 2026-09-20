@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+{% block content %}
+
+  <!-- 🔍 Hasil Pencarian -->
+  {% if query %}
+  <section class="search-results">
+    <h3>Hasil pencarian untuk: <em>{{ query }}</em></h3>
+
+    {% if songs %}
+    <div class="music-list">
+      {% for song in songs %}
+      <div class="music-item" 
+           data-id="{{ song.id }}" 
+           data-audio="{{ url_for('static', filename='uploads/songs/' + song.song_file) }}">
+        <img src="{{ url_for('static', filename='uploads/covers/' + (song.cover_file or 'default_cover.jpg')) }}" alt="{{ song.title }}">
+        <div class="info">
+          <h4>{{ song.title }}</h4>
+          <p>{{ song.artist }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% elif suggested_songs %}
+    <div class="search-suggestion">
+      <p class="search-suggestion__label">Mungkin maksud Anda:</p>
+      <div class="music-list">
+        {% for song in suggested_songs %}
+        <div class="music-item"
+             data-id="{{ song.id }}"
+             data-audio="{{ url_for('static', filename='uploads/songs/' + song.song_file) }}">
+          <img src="{{ url_for('static', filename='uploads/covers/' + (song.cover_file or 'default_cover.jpg')) }}" alt="{{ song.title }}">
+          <div class="info">
+            <h4>{{ song.title }}</h4>
+            <p>{{ song.artist }}</p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% else %}
+    <p style="margin-top:10px;">Lagu tidak ditemukan.</p>
+    {% endif %}
+  </section>
+  {% endif %}
+
+  {% if query and artists %}
+  <section class="search-results">
+    <h3>Artis terkait: <em>{{ query }}</em></h3>
+    <div class="artist-grid artist-grid-compact">
+      {% for artist in artists %}
+      <a class="artist-card artist-card-compact" href="{{ url_for('artist_detail', artist_id=artist.id) }}">
+        <img src="{% if artist.avatar %}{{ url_for('static', filename='uploads/avatars/' + artist.avatar) }}{% else %}{{ url_for('static', filename='assets/img/default_cover.jpg') }}{% endif %}" alt="{{ artist.stage_name }}">
+        <h3>{{ artist.stage_name }}</h3>
+        {% if artist.is_verified %}
+        <span class="verified-badge"><i class="fa-solid fa-check"></i></span>
+        {% endif %}
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- ===== EXPLORE SECTION ===== -->
+  <section class="explore-section">
+    <div class="explore-header">
+      <h2><i class="fa-solid fa-tags"></i> Explore</h2>
+      <p>Temukan musik, artis, dan genre terbaru yang sedang populer</p>
+    </div>
+
+    <!-- 🔹 Tabs -->
+    <div class="explore-tabs">
+      <button class="tab-button active" data-tab="kategori">Kategori</button>
+      <button class="tab-button" data-tab="terbaru">Terbaru</button>
+      <button class="tab-button" data-tab="trending">Trending</button>
+    </div>
+
+    <!-- 🔹 Tab Contents -->
+    <div class="explore-wrapper">
+      <!-- === KATEGORI === -->
+      <div class="tab-content active" id="kategori">
+        <div class="category-grid">
+            {% for genre, color in genre_colors.items() %}
+            <a href="{{ url_for('genre_page', genre_name=genre) }}" 
+              class="category-card" 
+              style="--clr: {{ color }};">{{ genre }}</a>
+            {% endfor %}
+          </div>
+
+
+      </div>
+
+      <!-- === TERBARU === -->
+      <div class="tab-content" id="terbaru">
+        <div class="music-list">
+          {% if latest_songs %}
+          {% for song in latest_songs %}
+          <div class="music-item" 
+               data-id="{{ song.id }}" 
+               data-audio="{{ url_for('static', filename='uploads/songs/' + song.song_file) }}">
+            <img src="{{ url_for('static', filename='uploads/covers/' + (song.cover_file or 'default_cover.jpg')) }}" alt="{{ song.title }}">
+            <div class="info">
+              <h4>{{ song.title }}</h4>
+              <p>{{ song.artist }}</p>
+            </div>
+          </div>
+          {% endfor %}
+          {% else %}
+          <p>Belum ada lagu terbaru.</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- === TRENDING === -->
+      <div class="tab-content" id="trending">
+        <div class="music-list">
+          {% if trending_songs %}
+          {% for song in trending_songs %}
+          <div class="music-item" 
+               data-id="{{ song.id }}" 
+               data-audio="{{ url_for('static', filename='uploads/songs/' + song.song_file) }}">
+            <img src="{{ url_for('static', filename='uploads/covers/' + (song.cover_file or 'default_cover.jpg')) }}" alt="{{ song.title }}">
+            <div class="info">
+              <h4>{{ song.title }}</h4>
+              <p>{{ song.artist }}</p>
+              <small>{{ song.plays }} kali diputar</small>
+            </div>
+          </div>
+          {% endfor %}
+          {% else %}
+          <p>Belum ada lagu trending bulan ini.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </section>
+
+<!-- === PODCAST === -->
+<section class="explore-section">
+  <div class="explore-header">
+    <h2><i class="fa-solid fa-podcast"></i> Podcast</h2>
+    <p>Dengarkan berbagai podcast yang telah disetujui oleh admin</p>
+  </div>
+
+  <div class="music-list">
+    {% if podcasts %}
+      {% for p in podcasts %}
+      <div class="music-item"
+           data-id="{{ p.id }}"
+           data-audio="{{ url_for('static', filename='uploads/podcasts/' + p.audio_file) }}">
+        {% if p.cover_file %}
+          <img src="{{ url_for('static', filename='uploads/podcast_covers/' + p.cover_file) }}" alt="{{ p.title }}">
+        {% else %}
+          <img src="{{ url_for('static', filename='assets/img/default_cover.jpg') }}" alt="{{ p.title }}">
+        {% endif %}
+        <div class="info">
+          <h4>{{ p.title }}</h4>
+          <p>Host: {{ p.host }}</p>
+          <small>{{ p.category }}</small>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <p>Belum ada podcast yang disetujui admin.</p>
+    {% endif %}
+  </div>
+</section>
+
+<section class="explore-section">
+  <div class="explore-header">
+    <h2><i class="fa-solid fa-user-music"></i> Artis untukmu</h2>
+    <p>Rekomendasi artis berdasarkan genre yang sering kamu putar</p>
+  </div>
+
+  <div class="artist-grid artist-grid-compact">
+    {% if artists %}
+      {% for artist in artists %}
+      <a class="artist-card artist-card-compact" href="{{ url_for('artist_detail', artist_id=artist.id) }}">
+        <img src="{% if artist.avatar %}{{ url_for('static', filename='uploads/avatars/' + artist.avatar) }}{% else %}{{ url_for('static', filename='assets/img/default_cover.jpg') }}{% endif %}" alt="{{ artist.stage_name }}">
+        <h3>{{ artist.stage_name }}</h3>
+        {% if artist.is_verified %}
+        <span class="verified-badge"><i class="fa-solid fa-check"></i></span>
+        {% endif %}
+      </a>
+      {% endfor %}
+    {% else %}
+      <p>Belum ada artis yang tersedia saat ini.</p>
+    {% endif %}
+  </div>
+</section>
+
+{% endblock %}

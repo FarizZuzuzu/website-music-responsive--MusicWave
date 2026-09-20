@@ -1,0 +1,33 @@
+
+
+  {% extends "base.html" %}
+  {% block content %}
+
+
+    
+    <section class="add-podcast-section">
+  <h2> Tambahkan Podcast ke Library</h2>
+
+  <div class="music-list">
+    {% for p in podcasts %}
+    <label class="podcast-card">
+      <input type="checkbox" name="selected_podcast" value="{{ p.id }}">
+      <div class="cover-wrap">
+        <img src="{{ url_for('static', filename='uploads/podcast_covers/' + (p.cover_file or 'default_cover.jpg')) }}" alt="{{ p.title }}">
+        <div class="check-overlay"><i class="fa-solid fa-check"></i></div>
+      </div>
+      <div class="podcast-info">
+        <h4>{{ p.title }}</h4>
+        <p>{{ p.host }}</p>
+      </div>
+    </label>
+    {% endfor %}
+  </div>
+
+  <button class="add-podcast-btn">
+    <i class="fa-solid fa-plus-circle"></i> Tambahkan ke Library
+  </button>
+</section>
+   
+  {% endblock %}
+ 

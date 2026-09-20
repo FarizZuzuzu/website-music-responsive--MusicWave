@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="settings-section">
+  <h2>Pengaturan Akun</h2>
+  <p class="settings-subtitle">Kelola akun dan preferensi aplikasi kamu</p>
+
+  <div class="settings-container">
+    <!-- 🔹 Ubah Password -->
+    <div class="settings-card">
+      <div class="settings-info">
+        <h4>Ubah Password</h4>
+        <p>Ganti kata sandi akun untuk keamanan lebih</p>
+      </div>
+      <button class="edit-btn" onclick="openChangePasswordModal()">
+        <i class="fa-solid fa-lock"></i> Ganti
+      </button>
+    </div>
+
+    <!-- 🔹 Tema -->
+    <form id="themeForm" action="{{ url_for('update_settings') }}" method="POST">
+      <div class="settings-card">
+        <div class="settings-info">
+          <h4>Tema Aplikasi</h4>
+          <p>Pilih mode tampilan aplikasi</p>
+        </div>
+        <select class="settings-select" name="theme" onchange="document.getElementById('themeForm').submit()">
+          <option value="light" {% if session.get('user_theme', 'light') == 'light' %}selected{% endif %}>Terang</option>
+          <option value="dark" {% if session.get('user_theme', 'light') == 'dark' %}selected{% endif %}>Gelap</option>
+          <option value="auto" {% if session.get('user_theme', 'light') == 'auto' %}selected{% endif %}>Otomatis</option>
+        </select>
+      </div>
+      <input type="hidden" name="language" value="{{ session.get('user_language', 'id') }}">
+      <input type="hidden" name="notifications" value="{{ 'true' if session.get('user_notifications', true) else 'false' }}">
+    </form>
+
+    <!-- 🔹 Notifikasi -->
+    <form id="notificationForm" action="{{ url_for('update_settings') }}" method="POST">
+      <div class="settings-card">
+        <div class="settings-info">
+          <h4>Notifikasi</h4>
+          <p>Aktifkan pemberitahuan playlist & update baru</p>
+        </div>
+        <label class="switch">
+          <input type="checkbox" name="notifications" value="true" 
+                 {% if session.get('user_notifications', true) %}checked{% endif %}
+                 onchange="document.getElementById('notificationForm').submit()">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <input type="hidden" name="theme" value="{{ session.get('user_theme', 'light') }}">
+      <input type="hidden" name="language" value="{{ session.get('user_language', 'id') }}">
+    </form>
+
+    <!-- 🔹 Bahasa -->
+    <form id="languageForm" action="{{ url_for('update_settings') }}" method="POST">
+      <div class="settings-card">
+        <div class="settings-info">
+          <h4>Bahasa</h4>
+          <p>Pilih bahasa yang kamu gunakan</p>
+        </div>
+        <select class="settings-select" name="language" onchange="document.getElementById('languageForm').submit()">
+          <option value="id" {% if session.get('user_language', 'id') == 'id' %}selected{% endif %}>Bahasa Indonesia</option>
+          <option value="en" {% if session.get('user_language', 'id') == 'en' %}selected{% endif %}>English</option>
+        </select>
+      </div>
+      <input type="hidden" name="theme" value="{{ session.get('user_theme', 'light') }}">
+      <input type="hidden" name="notifications" value="{{ 'true' if session.get('user_notifications', true) else 'false' }}">
+    </form>
+
+    <!-- 🔹 Keluar/Beralih Akun -->
+    <div class="settings-card warning">
+      <div class="settings-info">
+        <h4>Keluar Akun</h4>
+        <p>Keluar dari akun saat ini</p>
+      </div>
+      <button class="logout-btn" onclick="confirmLogout()">
+        <i class="fa-solid fa-right-from-bracket"></i> Keluar
+      </button>
+    </div>
+
+    <!-- 🔹 Hapus Akun -->
+    <div class="settings-card danger">
+      <div class="settings-info">
+        <h4>Hapus Akun</h4>
+        <p>Tindakan ini tidak dapat dibatalkan</p>
+      </div>
+      <button class="delete-btn" onclick="openDeleteAccountModal()">
+        <i class="fa-solid fa-trash"></i> Hapus
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- Modal Change Password -->
+<div class="modal" id="changePasswordModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Ubah Password</h3>
+      <button class="modal-close" onclick="closeChangePasswordModal()">&times;</button>
+    </div>
+    <form id="changePasswordForm" action="{{ url_for('update_password') }}" method="POST" class="settings-form">
+      <div class="form-group">
+        <label for="currentPassword">Password Saat Ini</label>
+        <input type="password" id="currentPassword" name="current_password" required>
+      </div>
+      <div class="form-group">
+        <label for="newPassword">Password Baru</label>
+        <input type="password" id="newPassword" name="new_password" required minlength="6">
+      </div>
+      <div class="form-group">
+        <label for="confirmPassword">Konfirmasi Password Baru</label>
+        <input type="password" id="confirmPassword" name="confirm_password" required minlength="6">
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn-cancel" onclick="closeChangePasswordModal()">Batal</button>
+        <button type="submit" class="btn-save">Simpan Password</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Delete Account -->
+<div class="modal" id="deleteAccountModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Hapus Akun</h3>
+      <button class="modal-close" onclick="closeDeleteAccountModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="warning-message">
+        <i class="fa-solid fa-exclamation-triangle"></i>
+        <h4>PERINGATAN</h4>
+        <p>Tindakan ini akan menghapus akun Anda secara permanen. Semua data termasuk playlist, riwayat, dan pengaturan akan hilang dan tidak dapat dikembalikan.</p>
+      </div>
+      <form id="deleteAccountForm" action="{{ url_for('delete_account') }}" method="POST">
+        <div class="form-group">
+          <label for="confirmation">Ketik "HAPUS" untuk konfirmasi:</label>
+          <input type="text" id="confirmation" name="confirmation" required>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-cancel" onclick="closeDeleteAccountModal()">Batal</button>
+          <button type="submit" class="btn-delete">Hapus Akun Permanen</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Password modal functions
+  function openChangePasswordModal() {
+    document.getElementById('changePasswordModal').style.display = 'flex';
+  }
+
+  function closeChangePasswordModal() {
+    document.getElementById('changePasswordModal').style.display = 'none';
+    document.getElementById('changePasswordForm').reset();
+  }
+
+  // Delete account modal functions
+  function openDeleteAccountModal() {
+    document.getElementById('deleteAccountModal').style.display = 'flex';
+  }
+
+  function closeDeleteAccountModal() {
+    document.getElementById('deleteAccountModal').style.display = 'none';
+    document.getElementById('deleteAccountForm').reset();
+  }
+
+  // Logout function
+  function confirmLogout() {
+    if (confirm('Apakah Anda yakin ingin keluar?')) {
+      window.location.href = "{{ url_for('logout') }}";
+    }
+  }
+
+  // Close modals when clicking outside
+  window.addEventListener('click', function(event) {
+    const changePasswordModal = document.getElementById('changePasswordModal');
+    const deleteAccountModal = document.getElementById('deleteAccountModal');
+    
+    if (event.target === changePasswordModal) {
+      closeChangePasswordModal();
+    }
+    
+    if (event.target === deleteAccountModal) {
+      closeDeleteAccountModal();
+    }
+  });
+</script>
+{% endblock %}

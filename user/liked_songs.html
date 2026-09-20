@@ -1,0 +1,658 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <!-- LIKED SONGS HERO SECTION -->
+  <section class="playlist-hero liked-songs-page">
+    <div class="playlist-header">
+      <img src="{{ url_for('static', filename='assets/img/playlist 1.jpg') }}" 
+           alt="Liked Songs" class="playlist-cover">
+      
+      <div class="playlist-info">
+        <p class="playlist-type">PLAYLIST</p>
+        <h1>Lagu Favorit</h1>
+        <p class="playlist-description">Kumpulan lagu-lagu favorit Anda</p>
+        
+        <div class="playlist-stats">
+          <span>{{ total_likes }} lagu</span>
+        </div>
+
+        <div class="playlist-actions">
+          <button class="play-btn" id="playLikedSongs" type="button" aria-label="Putar semua lagu favorit">
+            <i class="fa-solid fa-play"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LIKED SONGS TRACKS SECTION -->
+  {% if songs %}
+  <section class="tracks-section">
+    <div class="tracks-header">
+      <div>#</div>
+      <div>Judul</div>
+      <div>Genre</div>
+      <div>Artis</div>
+      <div></div>
+    </div>
+
+    <div class="tracks-list" id="likedTracksList">
+      {% for song in songs %}
+      <div class="track-item music-item music-card" 
+           data-id="{{ song.id }}" 
+           data-audio="{{ url_for('static', filename='uploads/songs/' + song.song_file) if song.song_file else '' }}"
+           data-type="song">
+        <div class="track-number">
+          <span class="number">{{ loop.index }}</span>
+          <i class="fa-solid fa-play track-play-icon"></i>
+        </div>
+        
+        <div class="track-info">
+          <img src="{{ url_for('static', filename='uploads/covers/' + (song.cover_file or 'default_cover.jpg')) }}" 
+              alt="{{ song.title }}" class="track-cover">
+          <div>
+            <div class="track-title">{{ song.title }}</div>
+            <div class="track-artist">{{ song.artist }}</div>
+          </div>
+        </div>
+        
+        <div class="track-album">{{ song.genre or '-' }}</div>
+        <div class="track-date">{{ song.artist }}</div>
+        
+        <div class="track-duration">
+          <div class="track-actions">
+            <button class="action-icon menu-btn" data-song-id="{{ song.id }}" title="Menu">
+              <i class="fa-solid fa-ellipsis-vertical"></i>
+            </button>
+            <!-- Context Menu -->
+            <div class="context-menu" style="display: none;">
+              <button class="context-item add-playlist-action" data-song-id="{{ song.id }}">
+                <i class="fa-solid fa-plus"></i> Tambah ke Playlist
+              </button>
+              <button class="context-item remove-like-action" data-song-id="{{ song.id }}">
+                <i class="fa-solid fa-trash"></i> Hapus dari Favorit
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% else %}
+  <!-- Empty State -->
+  <section class="tracks-section">
+    <div class="empty-playlist">
+      <div class="empty-icon">
+        <i class="fa-solid fa-heart"></i>
+      </div>
+      <p>Belum ada lagu favorit</p>
+      <p class="empty-subtitle">Mulai sukai lagu-lagu favorit Anda untuk melihatnya di sini</p>
+      <a href="{{ url_for('explore') }}" class="action-btn">
+        <i class="fa-solid fa-compass"></i> Jelajahi Lagu
+      </a>
+    </div>
+  </section>
+  {% endif %}
+<style>
+  .empty-icon {
+    font-size: 3rem;
+    color: #ddd;
+    margin-bottom: 15px;
+  }
+
+  .empty-subtitle {
+    color: #999;
+    margin-bottom: 20px;
+  }
+
+  .track-actions {
+    display: flex;
+    gap: 8px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    position: relative;
+  }
+
+  .context-menu {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 100;
+    min-width: 200px;
+    overflow: hidden;
+  }
+
+  .theme-dark .context-menu {
+    background: #2a2a2a;
+    border-color: #333;
+  }
+
+  .context-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 12px 16px;
+    border: none;
+    background: none;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+    text-align: left;
+  }
+
+  .theme-dark .context-item {
+    color: #fff;
+  }
+
+  .context-item:hover {
+    background: #f5f5f5;
+  }
+
+  .theme-dark .context-item:hover {
+    background: #333;
+  }
+
+  .context-item i {
+    width: 16px;
+    text-align: center;
+  }
+
+  .remove-like-action {
+    color: #ef4444;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  .theme-dark .remove-like-action {
+    border-top-color: #333;
+  }
+
+  .remove-like-action:hover {
+    background: #fee2e2;
+  }
+
+  .theme-dark .remove-like-action:hover {
+    background: #7f1d1d;
+  }
+
+  @keyframes fadeOut {
+    from {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateX(20px);
+    }
+  }
+</style>
+
+<script>
+  // IIFE untuk event delegation - execute immediately
+  (function() {
+    // Initialize liked songs handlers with event delegation
+    function initLikedSongsHandlers() {
+      console.log('🔧 Initializing liked songs handlers...');
+      
+      // Remove existing listeners to prevent duplicates
+      const oldListener = window.__likedSongsClickHandler;
+      if (oldListener) {
+        document.removeEventListener('click', oldListener);
+      }
+      
+      // Define new click handler
+      const clickHandler = function(e) {
+        // Handle menu button and its children
+        const menuBtn = e.target.closest('.menu-btn');
+        if (menuBtn && menuBtn.dataset.songId) {
+          console.log('📍 Menu button clicked for song:', menuBtn.dataset.songId);
+          e.stopPropagation();
+          const menu = menuBtn.nextElementSibling;
+          
+          if (!menu || !menu.classList.contains('context-menu')) {
+            console.warn('⚠️ Context menu not found');
+            return;
+          }
+          
+          // Hide all other menus
+          document.querySelectorAll('.context-menu').forEach(m => {
+            if (m !== menu) m.style.display = 'none';
+          });
+          
+          // Toggle current menu
+          menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+          console.log('✓ Menu toggled, display:', menu.style.display);
+          return;
+        }
+
+        // Add to playlist action - using event delegation
+        const addPlaylistBtn = e.target.closest('.add-playlist-action');
+        if (addPlaylistBtn && addPlaylistBtn.dataset.songId) {
+          console.log('📍 Add playlist button clicked for song:', addPlaylistBtn.dataset.songId);
+          e.stopPropagation();
+          const songId = addPlaylistBtn.dataset.songId;
+          showAddToPlaylistModal(songId);
+          // Close menu after
+          document.querySelectorAll('.context-menu').forEach(m => {
+            m.style.display = 'none';
+          });
+          console.log('✓ Add playlist modal shown');
+          return;
+        }
+
+        // Remove like action - using event delegation
+        const removeLikeBtn = e.target.closest('.remove-like-action');
+        if (removeLikeBtn && removeLikeBtn.dataset.songId) {
+          console.log('📍 Remove like button clicked for song:', removeLikeBtn.dataset.songId);
+          e.stopPropagation();
+          const songId = removeLikeBtn.dataset.songId;
+          (async () => {
+            await toggleLikeSong(songId);
+            
+            // Remove row with animation
+            const row = removeLikeBtn.closest('.music-item');
+            if (row) {
+              row.style.animation = 'fadeOut 0.3s ease';
+              setTimeout(() => row.remove(), 300);
+              console.log('✓ Row removed with animation');
+            }
+            
+            // Close menu
+            document.querySelectorAll('.context-menu').forEach(m => {
+              m.style.display = 'none';
+            });
+
+            // Reload jika semua lagu sudah dihapus
+            const remaining = document.querySelectorAll('.music-item').length;
+            if (remaining === 0) {
+              setTimeout(() => location.reload(), 500);
+            }
+          })();
+          return;
+        }
+
+        // Close menu when clicking outside
+        if (!e.target.closest('.context-menu') && !e.target.closest('.menu-btn')) {
+          document.querySelectorAll('.context-menu').forEach(m => {
+            m.style.display = 'none';
+          });
+        }
+      };
+      
+      // Store handler reference globally for cleanup
+      window.__likedSongsClickHandler = clickHandler;
+      document.addEventListener('click', clickHandler);
+      console.log('✓ Click handler attached');
+    }
+    
+    // Initialize on page load or immediately if DOM already loaded
+    function init() {
+      initLikedSongsHandlers();
+      
+      // Play all liked songs button
+      const playLikedBtn = document.getElementById('playLikedSongs');
+      if (playLikedBtn) {
+        const oldPlayListener = window.__playLikedBtnListener;
+        if (oldPlayListener) {
+          playLikedBtn.removeEventListener('click', oldPlayListener);
+        }
+        
+        const playListener = function(event) {
+          event.preventDefault();
+          event.stopPropagation();
+          const firstTrack = document.querySelector('#likedTracksList .music-item[data-audio]');
+          if (firstTrack) {
+            playTrackGlobal(firstTrack);
+          }
+        };
+        window.__playLikedBtnListener = playListener;
+        playLikedBtn.addEventListener('click', playListener);
+        console.log('✓ Play button handler attached');
+      }
+      
+      console.log('✅ Liked songs initialization complete');
+    }
+    
+    // Run on DOMContentLoaded
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      // DOM already loaded
+      init();
+    }
+    
+    // Re-init after AJAX navigation
+    document.addEventListener('likedSongsLoaded', function() {
+      console.log('🔄 likedSongsLoaded event fired - reinitializing handlers');
+      setTimeout(() => {
+        init();
+      }, 50);
+    });
+  })();
+</script>
+
+<style>
+  /* Liked Songs Page Styles */
+  .library-page {
+    padding: 30px;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .library-header {
+    margin-bottom: 40px;
+  }
+
+  .page-title {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+
+  .page-title i {
+    color: #ff006b;
+    font-size: 2.2rem;
+  }
+
+  .library-stats {
+    color: #666;
+    font-size: 0.95rem;
+  }
+
+  .songs-container {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+  }
+
+  .songs-table {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .songs-table-header {
+    display: grid;
+    grid-template-columns: 40px 1fr 180px 130px 100px;
+    gap: 20px;
+    padding: 20px 30px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e5e7eb;
+    font-weight: 600;
+    color: #666;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .music-item {
+    display: grid;
+    grid-template-columns: 40px 1fr 180px 130px 100px;
+    gap: 20px;
+    padding: 15px 30px;
+    align-items: center;
+    border-bottom: 1px solid #f0f0f0;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+
+  .music-item:hover {
+    background: #fafbfc;
+  }
+
+  .col-num {
+    color: #999;
+    font-size: 0.9rem;
+  }
+
+  .col-title {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+  }
+
+  .song-cover {
+    width: 45px;
+    height: 45px;
+    border-radius: 6px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .cover-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .song-title-info {
+    min-width: 0;
+  }
+
+  .track-title {
+    margin: 0;
+    font-size: 0.95rem;
+    color: #111;
+    font-weight: 500;
+  }
+
+  .track-duration {
+    margin: 4px 0 0 0;
+    font-size: 0.8rem;
+    color: #999;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .col-artist {
+    color: #666;
+    font-size: 0.9rem;
+  }
+
+  .col-genre {
+    color: #999;
+    font-size: 0.85rem;
+  }
+
+  .col-actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .music-actions {
+    display: flex;
+    gap: 10px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .music-item:hover .music-actions {
+    opacity: 1;
+  }
+
+  .like-btn, .add-playlist-btn {
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 5px 8px;
+    transition: all 0.3s ease;
+  }
+
+  .like-btn:hover {
+    color: #ff006b;
+  }
+
+  .add-playlist-btn:hover {
+    color: #7b57ff;
+  }
+
+  .like-btn.active {
+    color: #ff006b;
+  }
+
+  .empty-state {
+    padding: 60px 30px;
+    text-align: center;
+  }
+
+  .empty-icon {
+    font-size: 4rem;
+    color: #ddd;
+    margin-bottom: 20px;
+  }
+
+  .empty-state h3 {
+    font-size: 1.3rem;
+    margin-bottom: 10px;
+    color: #333;
+  }
+
+  .empty-state p {
+    color: #999;
+    margin-bottom: 25px;
+  }
+
+  .btn-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #7b57ff, #9a6bff);
+    color: white;
+    padding: 12px 30px;
+    border-radius: 25px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+
+  .btn-action:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(123, 87, 255, 0.3);
+  }
+
+  @media (max-width: 1024px) {
+    .songs-table-header,
+    .music-item {
+      grid-template-columns: 40px 1fr 100px;
+    }
+
+    .col-genre,
+    .col-artist {
+      display: none;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .library-page {
+      padding: 20px;
+    }
+
+    .songs-table-header,
+    .music-item {
+      grid-template-columns: 35px 1fr 80px;
+      gap: 10px;
+      padding: 12px 15px;
+    }
+
+    .page-title {
+      font-size: 1.5rem;
+    }
+
+    .col-title {
+      gap: 10px;
+    }
+
+    .song-cover {
+      width: 40px;
+      height: 40px;
+    }
+
+    .music-item:hover .music-actions {
+      opacity: 1;
+    }
+  }
+
+  /* Dark Mode */
+  .theme-dark .library-page {
+    background: transparent;
+  }
+
+  .theme-dark .songs-container {
+    background: #1e1e1e;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  }
+
+  .theme-dark .songs-table-header {
+    background: #2a2a2a;
+    border-bottom-color: #333;
+    color: #999;
+  }
+
+  .theme-dark .music-item {
+    border-bottom-color: #2a2a2a;
+  }
+
+  .theme-dark .music-item:hover {
+    background: #242424;
+  }
+
+  .theme-dark .track-title {
+    color: #fff;
+  }
+
+  .theme-dark .track-duration,
+  .theme-dark .col-genre,
+  .theme-dark .col-artist,
+  .theme-dark .col-num {
+    color: #888;
+  }
+
+  .theme-dark .empty-state h3 {
+    color: #fff;
+  }
+
+  .theme-dark .empty-state p {
+    color: #999;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Like button handler
+    document.querySelectorAll('.like-btn').forEach(btn => {
+      btn.addEventListener('click', async function(e) {
+        e.stopPropagation();
+        const songId = this.dataset.songId;
+        await toggleLikeSong(songId);
+        // Remove row if unlike
+        const row = this.closest('.music-item');
+        if (row) {
+          setTimeout(() => {
+            row.style.animation = 'fadeOut 0.3s ease';
+            setTimeout(() => row.remove(), 300);
+          }, 500);
+        }
+      });
+    });
+
+    // Add to playlist button handler
+    document.querySelectorAll('.add-playlist-btn').forEach(btn => {
+      btn.addEventListener('click', async function(e) {
+        e.stopPropagation();
+        const songId = this.dataset.songId;
+        await showAddToPlaylistModal(songId);
+      });
+    });
+  });
+</script>
+
+{% endblock %}

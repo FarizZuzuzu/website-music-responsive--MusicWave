@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - MusicWave</title>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='assets/img/musicwave-icon.svg') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='auth.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-wrapper">
+      <!-- Hero Section -->
+      <div class="auth-hero">
+        <div class="hero-content">
+          <div class="hero-icon">
+            <i class="fa-solid fa-headphones"></i>
+          </div>
+          <h1 class="hero-title">Welcome Back!</h1>
+          <p class="hero-subtitle">
+            Dive back into your personalized music experience. Your playlists and favorites are waiting for you.
+          </p>
+        </div>
+      </div>
+
+      <!-- Login Form -->
+      <div class="auth-card">
+        <div class="auth-header">
+          <div class="auth-logo">
+            <img src="{{ url_for('static', filename='assets/img/musicwave-logo.svg') }}" alt="MusicWave" class="auth-logo-image">
+          </div>
+        </div>
+
+        <!-- Flash Messages -->
+        <div class="flash-container" id="flashContainer">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash-message flash-{{ category }}" data-timeout="5000">
+                            <span class="flash-text">{{ message }}</span>
+                            <button class="flash-close" onclick="this.parentElement.remove()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+
+        <form method="POST" action="{{ url_for('login') }}" id="loginForm">
+          <div class="form-group">
+            <label class="form-label" for="username">
+              <i class="fa-solid fa-user" style="margin-right: 8px;"></i>
+              Username or Email
+            </label>
+            <input type="text" class="form-input" id="username" name="username" required 
+                   placeholder="Enter your username or email" value="{{ request.form.username if request.form }}">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="password">
+              <i class="fa-solid fa-lock" style="margin-right: 8px;"></i>
+              Password
+            </label>
+            <input type="password" class="form-input" id="password" name="password" required 
+                   placeholder="Enter your password">
+          </div>
+
+          <div class="remember-forgot">
+            <div class="checkbox-group">
+              <input type="checkbox" id="remember_me" name="remember_me" value="true">
+              <label for="remember_me">Remember me</label>
+            </div>
+            <a href="#" class="forgot-link">Forgot password?</a>
+          </div>
+
+          <button type="submit" class="auth-btn" id="submitBtn">
+            <i class="fa-solid fa-right-to-bracket"></i>
+            Sign In
+          </button>
+        </form>
+
+        <div class="auth-divider">
+          <span>Or continue with</span>
+        </div>
+
+        <div class="social-login">
+          <button type="button" class="social-btn google">
+            <i class="fa-brands fa-google"></i>
+            Google
+          </button>
+          <button type="button" class="social-btn facebook">
+            <i class="fa-brands fa-facebook-f"></i>
+            Facebook
+          </button>
+        </div>
+
+        <div class="auth-footer">
+          Don't have an account? 
+          <a href="{{ url_for('register') }}" class="auth-link">Create one here</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Enhanced form handling with loading state
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      const submitBtn = document.getElementById('submitBtn');
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+      
+      // Basic validation
+      if (!username || !password) {
+        e.preventDefault();
+        showMessage('Please fill in all fields', 'error');
+        return;
+      }
+      
+      // Add loading state
+      submitBtn.classList.add('btn-loading');
+      submitBtn.innerHTML = 'Signing In...';
+      submitBtn.disabled = true;
+    });
+
+    // Auto-remove flash messages after 5 seconds
+    setTimeout(() => {
+      const flashMessages = document.querySelectorAll('.flash-message');
+      flashMessages.forEach(message => {
+        message.style.opacity = '0';
+        message.style.transform = 'translateX(100px)';
+        setTimeout(() => message.remove(), 300);
+      });
+    }, 5000);
+
+    function showMessage(message, type) {
+      const flashContainer = document.querySelector('.flash-messages');
+      const flashMessage = document.createElement('div');
+      flashMessage.className = `flash-message flash-${type}`;
+      flashMessage.innerHTML = `
+        ${message}
+        <button class="flash-close" onclick="this.parentElement.remove()">×</button>
+      `;
+      flashContainer.appendChild(flashMessage);
+      
+      // Auto remove after 5 seconds
+      setTimeout(() => {
+        flashMessage.style.opacity = '0';
+        flashMessage.style.transform = 'translateX(100px)';
+        setTimeout(() => flashMessage.remove(), 300);
+      }, 5000);
+    }
+  </script>
+</body>
+</html>

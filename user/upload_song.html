@@ -1,0 +1,58 @@
+
+  {% extends "base.html" %}
+  {% block content %}
+
+  
+  <div class="upload-container">
+    <h2><i class="fa-solid fa-music"></i> Upload Lagu Kamu</h2>
+
+    <form action="{{ url_for('upload_song') }}" method="POST" enctype="multipart/form-data" data-no-ajax="true">
+      <label>Judul Lagu</label>
+      <input type="text" name="title" required>
+
+      <label>Artis</label>
+      <input type="text" name="artist" required>
+
+      <!-- upload_song.html - Ganti bagian genre -->
+      <div class="form-group">
+          <label>Genre <small>(Pilih satu atau lebih)</small></label>
+          <div class="genre-selection">
+              {% for genre in genres %}
+              <div class="genre-checkbox">
+                  <input type="checkbox" id="genre-{{ genre.id }}" name="genres" value="{{ genre.id }}">
+                  <label for="genre-{{ genre.id }}" class="genre-tag" style="--clr: {{ genre.color }};">
+                      {{ genre.name }}
+                  </label>
+              </div>
+              {% endfor %}
+          </div>
+      </div>
+
+      <label>Deskripsi</label>
+      <textarea name="description" rows="3" placeholder="Tuliskan deskripsi singkat lagu kamu"></textarea>
+
+      <label>Lirik <small>(opsional, gunakan format [00:12.50]Baris lirik untuk sinkronisasi otomatis)</small></label>
+      <textarea name="lyrics" rows="8" placeholder="[00:12.50]Baris lirik pertama
+    [00:17.80]Baris lirik berikutnya"></textarea>
+
+      <label>File Lagu (MP3)</label>
+      <input type="file" name="song_file" accept=".mp3" required>
+
+      <label>Cover Lagu (opsional)</label>
+      <input type="file" name="cover_file" accept="image/*">
+
+      <button type="submit" class="btn-submit"><i class="fa-solid fa-upload"></i> Upload</button>
+    </form>
+
+    <a href="{{ url_for('profile') }}" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Kembali ke Profil</a>
+  </div>
+  <!-- ==== END BAGIAN REQUEST LAGU ==== -->
+  
+
+
+
+
+
+  {% endblock %}
+
+  
