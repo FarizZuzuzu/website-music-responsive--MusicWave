@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 768 768" role="img" aria-labelledby="title">
+  <title>MusicWave icon</title>
+  <rect width="768" height="768" rx="150" fill="#8b5cf6"/>
+  <g fill="#fff">
+    <rect x="85" y="340" width="45" height="88" rx="22.5"/>
+    <rect x="154" y="279" width="45" height="210" rx="22.5"/>
+    <rect x="223" y="219" width="45" height="330" rx="22.5"/>
+    <rect x="292" y="159" width="45" height="450" rx="22.5"/>
+    <rect x="361" y="249" width="45" height="270" rx="22.5"/>
+    <rect x="430" y="159" width="45" height="450" rx="22.5"/>
+    <rect x="499" y="219" width="45" height="330" rx="22.5"/>
+    <rect x="568" y="279" width="45" height="210" rx="22.5"/>
+    <rect x="637" y="340" width="45" height="88" rx="22.5"/>
+  </g>
+</svg>
